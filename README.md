@@ -2,9 +2,7 @@
 | PowerShell Offboarding Employee Tasks |
  ---------------------------------------
 
-Small script that operates under a while loop that takes advantage of using two import modules: Microsoft Graph and ExchangeOnline.
-
-You are prompted to make a selection between 1-5 with each having their own functionality.
+Small script that operates under a while loop that takes advantage of using two import modules: Microsoft Graph and ExchangeOnline. You are prompted to make a selection between 1-5 with each having their own functionality.
 
 1) Iterates through each employee looking for active inbox rules tied to the employee. If nothing is found, the script will make a mention of it.
 
