@@ -1,26 +1,17 @@
-10/16/24
-Implemented a while loop to attempt to combine both ExchangeOnline and Microsoft Graph into one script.
-Currently, working on getting the authentication to not spam when selecting option 1.
+ ---------------------------------------
+| PowerShell Offboarding Employee Tasks |
+ ---------------------------------------
 
-10/17/24
-Hard coded domain and user to get around the authentication spam when selecting 1.
-Added try/catch block to catch error exceptions.
-Added delay to allow script to run properly.
-Fixed up Foreach block in selection 1.
-Added Invalid character checker between lines 12-14
+Small script that operates under a while loop that takes advantage of using two import modules: Microsoft Graph and ExchangeOnline.
 
-10/18/24
-Made some edits to the list of Options.
-Added a block for third selection.
-Removed Two Write-host from 1 selection block "Check Cred" & "Login Successful".
-Added a new module for revoke sessions support.
-Added two blocks for mailbox conversion of both shared to regular, vice versa.
+You are prompted to make a selection between 1-5 with each having their own functionality.
 
-10/23/24
-Added another elseif option for revoking sessions for #5
-Included "User.ReadWrite.All" for manipulating user sessions as a scope found within connect-mggraph
-Currently trying to implement disabling devices but found that it doesnt pipe with get-mguser. At a stand still at this part..
+1) Iterates through each employee looking for active inbox rules tied to the employee. If nothing is found, the script will make a mention of it.
 
-10/24/24
-Added confirmation in the License block, asking if the user wants to delete found licenses with Y/N.
-Added more delays between code blocks with Write-Host "Returning back to home".
+2) Utilizes Out-GridView to view a list of employees, depending on the amount selected, the script iterates through each employee looking for active licenses found within disabled accounts. If licenses are found, you are prompted to give Y/N to remove.
+
+3) Utilizes Out-GridView similiar to the above. Option 3 prompts the user on whom they want to select to convert their mailbox to shared.
+
+4) Much similiar to option 3 but instead converts the user selected back to regular operating mailbox.
+
+5) Here the option is given to revoke the selected user's session. Depending on how many are selected.
