@@ -1,5 +1,5 @@
  ---------------------------------------
-| PowerShell Offboarding Employee Tasks |
+| Microsoft 365 User Offboarding and Management Automation using PowerShell |
  ---------------------------------------
 
 Small script that operates under a while loop that takes advantage of using two import modules: Microsoft Graph and ExchangeOnline. You are prompted to make a selection between 1-5 with each having their own functionality.
