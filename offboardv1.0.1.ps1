@@ -8,7 +8,7 @@ while ($true) {
 
     try {
         # Prompts For User Selection
-        $userChoice = Read-Host "Enter your number selection`n0)Exit :`n1)Scan For Inbox Rules : `n2)Scan For Disabled Users [Select User(s) To Retrieve License Information] : `n3)Convert To Shared Mailbox [Select User(s) To Convert Mailbox] : `n4)Convert To Regular Mailbox [Select User(s) To Convert Mailbox] : `n5)Revoke User(s) Session :`n=>Selection "
+        $userChoice = Read-Host "Enter your number selection`n0)Exit :`n1)Scan For Inbox Rules : `n2)Scan For Disabled User Accounts [Select User(s) To Retrieve License Information] : `n3)Convert To Shared Mailbox [Select User(s) To Convert Mailbox] : `n4)Convert Back To Regular Mailbox [Select User(s) To Convert Mailbox] : `n5)Revoke User(s) Session :`n=>Selection "
 
         # Provides A Retry If User Has Selected Alpha Characters
         if (-not [int]::TryParse($userChoice, [ref]$null)){
@@ -29,7 +29,6 @@ while ($true) {
                 Connect-ExchangeOnline -UserPrincipalName upn_here  -Organization "domain.xyz" -ErrorAction Stop
 
                 # Delay added so script doesn't run everything all at once
-                Start-Sleep -Seconds 2
                 Write-Host -ForegroundColor Yellow "Scanning For Inbox Rules..."
                 Start-Sleep -Seconds 2
 
@@ -39,9 +38,20 @@ while ($true) {
                     Write-Host -ForegroundColor Red "There Weren't Any Inbox Rules To be Found."
                 } else {
                     $selectUserMail | Out-GridView -Title "User Mailbox Rules" -PassThru
+                    
                     foreach ($user in $selectUserMail){
-                    Write-Host -ForegroundColor Yellow "Found User Inbox Rule For: $($user.displayName)`n"
-                    Get-InboxRule | Format-List
+                        Write-Host -ForegroundColor Yellow "Found User Inbox Rule For: $($user.displayName)`n"
+                        Write-Host -ForegroundColor Yellow "Do You Want To Remove The Inbox Rule For $($user.displayName)? Y/N?"
+                        $choice = Read-Host
+                            if ($choice.ToUpper() -eq 'Y'){
+                                Write-Host -ForegroundColor Yellow "Removing Inbox Rule For $($user.displayName).."
+                                Get-InboxRule -Mailbox $user.Id | Disable-InboxRule -UserId $user.Id -WhatIf
+                                Write-Host -ForegroundColor Green "Inbox Rule Removed."
+                            }elseif($choice.ToUpper() -eq 'N'){
+                                Write-Host -ForegroundColor Yellow "If No Other Users Found, Going Back To Home Menu.."
+                            } else {
+                                Write-Host -ForegroundColor Red "Error: Invalid Selection"
+                            }
                     }
                 }           
             }catch {
@@ -66,15 +76,16 @@ while ($true) {
                     Write-Host -ForegroundColor Red "User: $($user.displayName) Does Not Have Any Valid Licenses."
                 }else {
                     Write-Host -ForegroundColor Green "Found User License For: $($user.displayName)`nLicense Information Below:"
-                    Start-Sleep -Seconds 1
+                    
                     $licenseDetail | Format-List
+
                     Write-Host -ForegroundColor Yellow "Would You Like To Remove $($user.displayName)'s License? Y/N?"
                     $choice = Read-Host
                         if ($choice.ToUpper() -eq 'Y' ){
-                            Write-Host -ForegroundColor Yellow "To Remove License For $($user.displayName) Paste License Found Above."
+                            Write-Host -ForegroundColor Yellow "To Remove License For $($user.displayName), Copy License Found Above For Its User."
                             Remove-MgUserLicenseDetail -UserId $user.Id -WhatIf
                         }elseif($choice.ToUpper() -eq 'N'){
-                            Write-Host -ForegroundColor Yellow "Returning Other Users. If No Other Users Found, Going Back To Home Menu.."
+                            Write-Host -ForegroundColor Yellow "Returning Other Users. If No Other Users Found, Returning Back To Home Menu.."
                         } else {
                             Write-Host -ForegroundColor Red "Error: Invalid Selection"
                         }
@@ -134,10 +145,6 @@ while ($true) {
                 Revoke-MgUserSignInSession -UserId $_.Id
                 Write-Host -ForegroundColor Yellow "Revoked Session for: $($_.displayName) ($($_.UserPrincipalName))"
             }
-        }elseif ($userChoice -eq 6){
-            Connect-MgGraph -Scopes "User.ReadWrite.All" -NoWelcome -ErrorAction Stop
-
-
         }
     } catch {
         Write-Host -ForegroundColor Red "$_ Enter A Valid Option. Try Again."
